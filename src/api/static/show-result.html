@@ -1,0 +1,183 @@
+<html>
+<head>
+   <style>
+      table, th, td {
+         border: 1px solid black;
+         border-collapse: collapse; 
+      }
+      td, th {
+         padding: 10px;
+      }
+   </style>
+   <title> Railway结果 </title>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <link rel=icon href="favicon.png">
+</head>
+<body>
+   <h2>从API得到结果-Railway</h2>
+<select name="cars" id="project-url">
+  <option value="">本服务器</option>
+  <option value="https://goose-cdivtm2llq-df.a.run.app">google</option>
+  <option value="https://goose.aixi.nl">railway</option>
+  <option value="http://localhost:7080">local:7080</option>
+  <option value="http://localhost:8000">local:8000</option>
+</select>
+   <input id="project-id" value="1"/>
+   <button id="btn" onclick="convert( )"> 获取结果 </button> 
+   <span id="urlstatus"> 准备好了吗？ </span>
+   <button id="btn-first" onclick="show_first( )"> 第一行</button> 
+
+   <h3> 结果: </h3>
+   <div id="container"></div>
+   <script>
+     let spanstatus = document.getElementById("urlstatus");
+     var tabledata=null;  // 在 xmlhttprequest 后还可以被其它函数使用
+     function show_first(){
+	 if (tabledata) {
+             alert(tabledata[0].stock_name)
+	 }
+     }
+     // Function to convert JSON data to HTML table
+     function convert() {
+         var projectid=document.getElementById("project-id").value;
+         var projecturl=document.getElementById("project-url").value;
+         //alert(projecturl);
+         var xhr = new XMLHttpRequest();
+	 xhr.open("GET", projecturl+"/api/v1/stock/project/"+projectid+"/result", true);
+	 //xhttp.open("GET", "https://goose.aixi.nl/api/v1/stock/project/1", true);
+	 xhr.send();
+	 xhr.onreadystatechange = function() {
+             //console.log(xhr.readyState);
+             if (xhr.readyState == 2) {
+               spanstatus.textContent="已连接";
+             }
+	     // 数据全部返回的判断
+	     if (xhr.readyState == 4) {
+                 spanstatus.textContent="已取到数据";
+                 spanstatus.setAttribute("style", "color:blue;");
+
+		 if ((xhr.status>=200&&xhr.status<300)||xhr.status==304) { // 成功
+		     var result=JSON.parse(xhr.responseText);
+		     tabledata=result['data'];//console.log(tabledata);
+                     if(tabledata){
+                         // 变成 table 显示在 "container" 里面
+			 if(result['header']){
+		             data_to_table(tabledata, result['header'], "container");
+			 } else {
+		             json_to_table(tabledata, "container");
+			 }
+                     } else {
+			 spanstatus.textContent="数据出错: "+result['error'];
+			 spanstatus.setAttribute("style", "color:red;");
+                     }
+		 } else {
+                     // 出错了
+                     document.getElementById("container").innerHTML="出错了"+xhr.status;
+                 }
+	     }
+	 }
+         xhr.onerror = function(err) {
+            console.log("XHR error");
+            console.log(err); alert(err);
+            console.log(err.target.status);
+            //reject(err);
+        };
+        xhr.ontimeout = function(err) {
+            console.log("timed out");
+            console.log(err); alert("time out");
+        };
+     }
+     // 把 jsonData 中的数据变成table，并且放到 container_id 里面
+     //   jsonData=[{"key1":val1, "key2": val2, ...},...]
+     //   header=[['col1', 'desc1'],..]
+     //    header [1]值会作为 table 的 header, [0] 作为相应的key
+     function data_to_table(jsonData, header, container_id){
+	 // Get the container element where the table will be inserted
+	 let container = document.getElementById(container_id);
+         
+	 // Create the table element
+	 let table = document.createElement("table");
+         
+	 // Get the keys (column names) of the first object in the JSON data
+	 //let cols = Object.keys(jsonData[0]);
+         
+	 // Create the header element
+	 let thead = document.createElement("thead");
+	 let tr = document.createElement("tr");
+         
+	 // Loop through the column names and create header cells
+	 header.forEach((item) => {
+	     let th = document.createElement("th");
+	     th.innerText = item[1]; // Set the column name as the text of the header cell
+	     tr.appendChild(th); // Append the header cell to the header row
+	 });
+	 thead.appendChild(tr); // Append the header row to the header
+	 table.append(tr) // Append the header to the table
+         
+	 // Loop through the JSON data and create table rows
+	 jsonData.forEach((item) => {
+	     let tr = document.createElement("tr");
+			 
+	     // Get the values of the current object in the JSON data
+	     //let vals = Object.values(item);
+             //console.log(item)
+	     // Loop through the values and create table cells
+	     header.forEach((elem) => {
+		 let td = document.createElement("td");
+		 tdval=item[elem[0]];
+		 td.innerText = item[elem[0]]; // Set the value as the text of the table cell
+                 if(tdval===true) td.style.backgroundColor = "#70ff00";
+                 if(tdval===false) td.style.backgroundColor = "#700";
+		 tr.appendChild(td); // Append the table cell to the table row
+	     });
+	     table.appendChild(tr); // Append the table row to the table
+	 });
+	 container.appendChild(table) // Append the table to the container element
+     }
+     // 把 jsonData 中的数据变成table，并且放到 container_id 里面
+     //   jsonData=[{"key1":val1, "key2": val2, ...},...]
+     // key值会作为 table 的 header
+     function json_to_table(jsonData, container_id){
+	 // Get the container element where the table will be inserted
+	 let container = document.getElementById(container_id);
+         
+	 // Create the table element
+	 let table = document.createElement("table");
+         
+	 // Get the keys (column names) of the first object in the JSON data
+	 let cols = Object.keys(jsonData[0]);
+         
+	 // Create the header element
+	 let thead = document.createElement("thead");
+	 let tr = document.createElement("tr");
+         
+	 // Loop through the column names and create header cells
+	 cols.forEach((item) => {
+	     let th = document.createElement("th");
+	     th.innerText = item; // Set the column name as the text of the header cell
+	     tr.appendChild(th); // Append the header cell to the header row
+	 });
+	 thead.appendChild(tr); // Append the header row to the header
+	 table.append(tr) // Append the header to the table
+         
+	 // Loop through the JSON data and create table rows
+	 jsonData.forEach((item) => {
+	     let tr = document.createElement("tr");
+			 
+	     // Get the values of the current object in the JSON data
+	     let vals = Object.values(item);
+            
+	     // Loop through the values and create table cells
+	     vals.forEach((elem) => {
+		 let td = document.createElement("td");
+		 td.innerText = elem; // Set the value as the text of the table cell
+                 if(elem===true) td.style.backgroundColor = "#70ff00";
+		 tr.appendChild(td); // Append the table cell to the table row
+	     });
+	     table.appendChild(tr); // Append the table row to the table
+	 });
+	 container.appendChild(table) // Append the table to the container element
+     }
+   </script>
+</body>
+</html>

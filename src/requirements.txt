@@ -1,0 +1,6 @@
+fastapi>=0.95
+uvicorn>=0.22.*
+peewee>=3.*
+pymysql>=1.*
+python-multipart
+openpyxl>=3.*

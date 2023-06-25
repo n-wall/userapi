@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# 可以先创建 venv 环境
+#python3 -m venv --prompt=railway venv
+#source venv/bin/activate
+#pip install -r src/requirements.txt
+
+source venv/bin/activate
+# in ./src
+cd src
+uvicorn main:app --reload

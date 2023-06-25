@@ -1,0 +1,4 @@
+
+# https://stackoverflow.com/questions/3185677/converting-gifs-pngs-and-jpgs-to-ico-files-using-imagemagick
+
+convert -background transparent "favicon.png" -define icon:auto-resize=16,24,32,48,64,72,96,128,256 "favicon.ico"

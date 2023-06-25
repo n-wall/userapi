@@ -1,0 +1,6 @@
+#! /bin/bash
+
+# initialize database
+curl --socks5 192.168.2.10:7890 -X 'GET' \
+  'https://abc.up.railway.app/the/first/step/is/setup/database' \
+  -H 'accept: application/json'

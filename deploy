@@ -1,0 +1,9 @@
+#! /bin/bash
+
+# 在 src/ 目录下运行
+cd src
+# 用如下命令先 link
+# railway link
+
+# deploy 代码
+railway up

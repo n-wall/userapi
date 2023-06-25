@@ -1,0 +1,26 @@
+#! /bin/bash
+
+source ../authapi.sh
+
+host="https://"
+proxy="--socks5 192.168.2.10:7880"
+
+data='{"email":"test@test.com",
+  "sex": "M",
+  "kind": "web",  "group": "admin",
+  "password": "test1233"}'
+echo $data
+# delete data in table
+recs=`postjson /api/v1/admin/user $data`
+echo $recs
+decodejson $recs
+
+data='{
+  "token": "token1",
+  "secret": "123456"
+}'
+recs=`postjson /api/v1/admin/user/test@test.com/token $data`
+echo $recs
+decodejson $recs
+
+

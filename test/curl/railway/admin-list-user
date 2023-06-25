@@ -1,0 +1,16 @@
+#! /bin/bash
+
+source ../authapi.sh
+
+host="https://"
+proxy="--socks5 192.168.2.10:7880"
+
+# delete data in table
+recs=`get /api/v1/admin/user `
+echo $recs
+decodejson $recs
+
+recs=`get /api/v1/admin/token `
+echo $recs
+decodejson $recs
+

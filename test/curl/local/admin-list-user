@@ -1,0 +1,22 @@
+#! /bin/bash
+
+source ../authapi.sh
+
+host="http://localhost:8000"
+
+# delete data in table
+recs=`get /api/v1/admin/user `
+echo $recs
+decodejson $recs
+
+# list all token
+recs=`get /api/v1/admin/token`
+echo $recs
+decodejson $recs
+
+
+#recs=`post /api/v1/admin/db/aToken?newkind=on @token.json `
+#echo $recs
+#decodejson $recs
+
+
